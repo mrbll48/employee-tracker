@@ -1,15 +1,19 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 
-const db = mysql.createConnection(
-  {
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "employee_db",
-  },
-  console.log(`connected to ${database}`)
-);
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "password",
+  database: "employee_db",
+});
+
+db.connect((err) => {
+  if (err) {
+    throw err;
+  }
+  console.log("mysql connected");
+});
 
 const questions = [
   {
@@ -68,6 +72,6 @@ const questions = [
   },
 ];
 
-inquirer.prompt(questions).then((answers) => {
-  console.log(answers);
-});
+// inquirer.prompt(questions).then((answers) => {
+//   console.log(answers);
+// });
