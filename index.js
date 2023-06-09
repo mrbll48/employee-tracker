@@ -143,21 +143,30 @@ function addEmployee() {
 }
 
 function updateEmployee() {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        message: "Which employee's role do you want to update?",
-        name: "name",
-      },
-      {
-        type: "input",
-        message: "What is this employee's new role?",
-        name: "role_id",
-      },
-    ])
-    .then((answers) => {
-      console.log(answers);
+  db.promise()
+    .query("SELECT * from employees")
+    .then(([emps]) => {
+      const employeeChoices = emps.map((emp) => ({
+        name: emp.first_name + " " + emp.last_name,
+        value: emp.name,
+      }));
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            message: "Which employee's role do you want to update?",
+            name: "name",
+            choices: employeeChoices,
+          },
+          {
+            type: "input",
+            message: "What is this employee's new role?",
+            name: "role_id",
+          },
+        ])
+        .then((answers) => {
+          db.promise().query("UPDATE employees SET ?", answers, `WHERE `);
+        });
     });
 }
 
