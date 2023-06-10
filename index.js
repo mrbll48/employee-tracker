@@ -103,7 +103,6 @@ function addRole() {
           },
         ])
         .then((answers) => {
-          console.log(answers);
           db.promise()
             .query("INSERT INTO roles SET ?", answers)
             .then(() => setTimeout(mainQuestion, 1000));
@@ -112,60 +111,90 @@ function addRole() {
 }
 
 function addEmployee() {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        message: "What is the employee's first name?",
-        name: "first_name",
-      },
-      {
-        type: "input",
-        message: "What is the employee's last name?",
-        name: "last_name",
-      },
-      {
-        type: "input",
-        message: "What is the role for this employee?",
-        name: "title",
-      },
-      {
-        type: "input",
-        message: "Who is this employee's manager?",
-        name: "manager",
-      },
-    ])
-    .then((answers) => {
+  db.promise()
+    .query("SELECT * FROM roles")
+    .then(([roles]) => {
+      const roleChoices = roles.map((role) => ({
+        name: role.title,
+      }));
       db.promise()
-        .query("INSERT INTO employees SET ?", answers)
-        .then(() => setTimeout(mainQuestion, 1000));
+        .query("SELECT * FROM employees")
+        .then(([emps]) => {
+          const empChoices = emps.map((emp) => ({
+            name: emp.first_name + " " + emp.last_name,
+          }));
+          inquirer
+            .prompt([
+              {
+                type: "input",
+                message: "What is the employee's first name?",
+                name: "first_name",
+              },
+              {
+                type: "input",
+                message: "What is the employee's last name?",
+                name: "last_name",
+              },
+              {
+                type: "list",
+                message: "What is the role for this employee?",
+                name: "title",
+                choices: roleChoices,
+              },
+              {
+                type: "list",
+                message: "Who is this employee's manager?",
+                name: "manager",
+                choices: empChoices,
+              },
+            ])
+            .then((answers) => {
+              db.promise()
+                .query("INSERT INTO employees SET ?", answers)
+                .then(() => setTimeout(mainQuestion, 1000));
+            });
+        });
     });
 }
 
 function updateEmployee() {
   db.promise()
-    .query("SELECT * from employees")
+    .query("SELECT * FROM employees")
     .then(([emps]) => {
-      const employeeChoices = emps.map((emp) => ({
-        name: emp.first_name + " " + emp.last_name,
-        value: emp.name,
-      }));
-      inquirer
-        .prompt([
-          {
-            type: "list",
-            message: "Which employee's role do you want to update?",
-            name: "name",
-            choices: employeeChoices,
-          },
-          {
-            type: "input",
-            message: "What is this employee's new role?",
-            name: "role_id",
-          },
-        ])
-        .then((answers) => {
-          db.promise().query("UPDATE employees SET ?", answers, `WHERE `);
+      const employeeChoices = emps.map((emp) => {
+        console.log(emp);
+        return {
+          name: emp.first_name + " " + emp.last_name,
+          value: emp.id,
+        };
+      });
+      db.promise()
+        .query("SELECT * FROM roles")
+        .then(([roles]) => {
+          const roleChoices = roles.map((role) => ({
+            name: role.title,
+          }));
+          inquirer
+            .prompt([
+              {
+                type: "list",
+                message: "Which employee's role do you want to update?",
+                name: "name",
+                choices: employeeChoices,
+              },
+              {
+                type: "list",
+                message: "What is this employee's new role?",
+                name: "role_id",
+                choices: roleChoices,
+              },
+            ])
+            .then((answers) => {
+              db.promise().query(
+                "UPDATE employees SET role_id = ? WHERE id = ?",
+                [answers.role_id, answers.name]
+              );
+            });
         });
     });
 }
