@@ -119,12 +119,14 @@ function addEmployee() {
     .then(([roles]) => {
       const roleChoices = roles.map((role) => ({
         name: role.title,
+        value: role.id,
       }));
       db.promise()
         .query("SELECT * FROM employees")
         .then(([emps]) => {
           const empChoices = emps.map((emp) => ({
             name: emp.first_name + " " + emp.last_name,
+            value: emp.id,
           }));
           inquirer
             .prompt([
