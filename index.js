@@ -170,15 +170,18 @@ function updateEmployee() {
         console.log(emp);
         return {
           name: emp.first_name + " " + emp.last_name,
-          value: emp.id,
+          value: emp.role_id,
         };
       });
       db.promise()
         .query("SELECT * FROM roles")
         .then(([roles]) => {
-          const roleChoices = roles.map((role) => ({
-            name: role.title,
-          }));
+          const roleChoices = roles.map((role) => {
+            return {
+              name: role.title,
+              value: role.id,
+            };
+          });
           inquirer
             .prompt([
               {
@@ -199,7 +202,8 @@ function updateEmployee() {
                 "UPDATE employees SET role_id = ? WHERE id = ?",
                 [answers.role_id, answers.name]
               );
-            });
+            })
+            .then(() => setTimeout(mainQuestion, 1000));
         });
     });
 }
