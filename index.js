@@ -79,10 +79,13 @@ function addRole() {
   db.promise()
     .query("SELECT * from departments")
     .then(([depts]) => {
-      const departmentChoices = depts.map((dept) => ({
-        name: dept.name,
-        value: dept.id,
-      }));
+      const departmentChoices = depts.map((dept) => {
+        console.log(dept);
+        return {
+          name: dept.name,
+          value: dept.id,
+        };
+      });
       inquirer
         .prompt([
           {
@@ -138,13 +141,13 @@ function addEmployee() {
               {
                 type: "list",
                 message: "What is the role for this employee?",
-                name: "title",
+                name: "role_id",
                 choices: roleChoices,
               },
               {
                 type: "list",
                 message: "Who is this employee's manager?",
-                name: "manager",
+                name: "manager_id",
                 choices: empChoices,
               },
             ])
