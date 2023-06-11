@@ -21,6 +21,12 @@ const questions = [
       "Add a role",
       "Add an employee",
       "Update an employee role",
+      "Update an employee's manager",
+      "View employees by manager",
+      "Delete departments",
+      "Delete roles",
+      "Delete employees",
+      "Quit",
     ],
   },
 ];
@@ -64,15 +70,15 @@ function addDepartment() {
     .then((answers) => {
       db.promise()
         .query("INSERT INTO departments SET ?", answers)
-        .then(() => setTimeout(mainQuestion, 1000));
+        .then(() => setTimeout(viewDepartments, mainQuestion, 1000));
     });
 }
 
 function addRole() {
   db.promise()
-    .query("SELECT * from departments")
+    .query("SELECT * FROM departments")
     .then(([depts]) => {
-      const departmentChoices = depts.map((dept) => {
+      const deptChoices = depts.map((dept) => {
         console.log(dept);
         return {
           name: dept.name,
@@ -95,13 +101,14 @@ function addRole() {
             type: "list",
             message: "Which department does the role belong to?",
             name: "department_id",
-            choices: departmentChoices,
+            choices: deptChoices,
           },
         ])
         .then((answers) => {
+          console.log(answers);
           db.promise()
             .query("INSERT INTO roles SET ?", answers)
-            .then(() => setTimeout(mainQuestion, 1000));
+            .then(() => setTimeout(viewRoles, mainQuestion, 1000));
         });
     });
 }
@@ -147,9 +154,10 @@ function addEmployee() {
               },
             ])
             .then((answers) => {
+              console.log(answers);
               db.promise()
                 .query("INSERT INTO employees SET ?", answers)
-                .then(() => setTimeout(mainQuestion, 1000));
+                .then(() => setTimeout(viewEmployees, mainQuestion, 1000));
             });
         });
     });
@@ -196,9 +204,58 @@ function updateEmployee() {
                 [answers.role_id, answers.name]
               );
             })
-            .then(() => setTimeout(mainQuestion, 1000));
+            .then(() => setTimeout(viewEmployees, mainQuestion, 1000));
         });
     });
+}
+
+function updateEmpManager() {
+  db.promise()
+    .query("SELECT * FROM employees")
+    .then(([managers]) => {
+      const managerUpdate = managers.map((man) => ({
+        name: man.first_name + " " + man.last_name,
+        value: man.manager_id,
+      }));
+      setTimeout(mainQuestion, 1000);
+    });
+  inquirer.prompt({
+    type: "list",
+    message: "Which employees manager would you like to update?",
+    name: "name",
+    choices: managerUpdate,
+  });
+}
+
+function viewEmpByManager() {
+  db.promise()
+    .query("SELECT * FROM employees")
+    .then(([managers]) => {
+      const empManagers = managers.map((man) => ({
+        name: man.first_name + " " + man.last_name,
+        value: man.manager_id,
+      }));
+      inquirer.prompt({
+        type: "list",
+        message: "Choose a manager to view the employees they manage.",
+        name: "managerList",
+        choices: empManagers,
+      });
+    })
+    .then(([rows]) => {
+      console.table(rows);
+      setTimeout(mainQuestion, 1000);
+    });
+}
+
+function deleteDepartments() {}
+
+function deleteRoles() {}
+
+function deleteEmployees() {}
+
+function quit() {
+  db.end();
 }
 
 function mainQuestion() {
@@ -225,6 +282,24 @@ function mainQuestion() {
         break;
       case "Update an employee role":
         updateEmployee();
+        break;
+      case "Update an employee's manager":
+        updateEmpManager();
+        break;
+      case "View employees by manager":
+        viewEmpByManager();
+        break;
+      case "Delete departments":
+        deleteDepartments();
+        break;
+      case "Delete roles":
+        deleteRoles();
+        break;
+      case "Delete employees":
+        deleteEmployees();
+        break;
+      case "Quit":
+        quit();
         break;
     }
   });
