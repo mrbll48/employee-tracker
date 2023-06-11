@@ -215,44 +215,72 @@ function updateEmpManager() {
     .then(([managers]) => {
       const managerUpdate = managers.map((man) => ({
         name: man.first_name + " " + man.last_name,
-        value: man.manager_id,
+        value: man.id,
       }));
-      setTimeout(mainQuestion, 1000);
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            message: "Which employees manager would you like to update?",
+            name: "name",
+            choices: managerUpdate,
+          },
+          {
+            type: "list",
+            message: "Which manager would you like to assign to this employee?",
+            name: "newManager",
+            choices: managerUpdate,
+          },
+        ])
+        .then((answers) => {
+          db.promise().query(
+            "UPDATE employees SET manager_id = ? WHERE id = ?",
+            [answers.newManager, answers.name]
+          );
+        })
+        .then(() => setTimeout(viewEmployees, mainQuestion, 1000));
     });
-  inquirer.prompt({
-    type: "list",
-    message: "Which employees manager would you like to update?",
-    name: "name",
-    choices: managerUpdate,
-  });
 }
 
 function viewEmpByManager() {
   db.promise()
-    .query("SELECT * FROM employees")
+    .query("SELECT * FROM managers")
     .then(([managers]) => {
-      const empManagers = managers.map((man) => ({
-        name: man.first_name + " " + man.last_name,
-        value: man.manager_id,
-      }));
-      inquirer.prompt({
-        type: "list",
-        message: "Choose a manager to view the employees they manage.",
-        name: "managerList",
-        choices: empManagers,
+      const managerList = managers.map((manager) => {
+        return {
+          name: manager.first_name + " " + manager.last_name,
+          value: manager.manager_id,
+        };
       });
-    })
-    .then(([rows]) => {
-      console.table(rows);
-      setTimeout(mainQuestion, 1000);
+
+      inquirer
+        .prompt({
+          type: "list",
+          message: "Select a manager to view managed employees",
+          name: "managers",
+          choices: managerList,
+        })
+        .then((answers) => {
+          db.promise()
+            .query(`SELECT ${answers.value} FROM employees`)
+            .then(([rows]) => {
+              console.table(rows);
+            });
+        });
     });
 }
 
-function deleteDepartments() {}
+function deleteDepartments() {
+  db.promise().query().then();
+}
 
-function deleteRoles() {}
+function deleteRoles() {
+  db.promise().query().then();
+}
 
-function deleteEmployees() {}
+function deleteEmployees() {
+  db.promise().query().then();
+}
 
 function quit() {
   db.end();
