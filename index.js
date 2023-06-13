@@ -52,7 +52,7 @@ function viewRoles() {
 function viewEmployees() {
   db.promise()
     .query(
-      "SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS departments, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN departments on roles.department_id = departments.id LEFT JOIN employees manager on manager.id = employees.manager_id"
+      "SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS departments, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN departments ON roles.department_id = departments.id LEFT JOIN employees manager ON manager.id = employees.manager_id"
     )
     .then(([rows]) => {
       console.table(rows);
@@ -70,7 +70,7 @@ function addDepartment() {
     .then((answers) => {
       db.promise()
         .query("INSERT INTO departments SET ?", answers)
-        .then(() => setTimeout(viewDepartments, mainQuestion, 1000));
+        .then(() => setTimeout(viewDepartments, mainQuestion, 2000));
     });
 }
 
@@ -105,10 +105,11 @@ function addRole() {
           },
         ])
         .then((answers) => {
-          console.log(answers);
+          console.log(answers.department_id);
+          db.promise().query("INSERT INTO roles SET ?", answers);
           db.promise()
             .query("INSERT INTO roles SET ?", answers)
-            .then(() => setTimeout(viewRoles, mainQuestion, 1000));
+            .then(() => setTimeout(viewRoles, mainQuestion, 2000));
         });
     });
 }
@@ -157,7 +158,7 @@ function addEmployee() {
               console.log(answers);
               db.promise()
                 .query("INSERT INTO employees SET ?", answers)
-                .then(() => setTimeout(viewEmployees, mainQuestion, 1000));
+                .then(() => setTimeout(viewEmployees, mainQuestion, 2000));
             });
         });
     });
@@ -204,7 +205,7 @@ function updateEmployee() {
                 [answers.role_id, answers.name]
               );
             })
-            .then(() => setTimeout(viewEmployees, mainQuestion, 1000));
+            .then(() => setTimeout(viewEmployees, mainQuestion, 2000));
         });
     });
 }
@@ -238,36 +239,44 @@ function updateEmpManager() {
             [answers.newManager, answers.name]
           );
         })
-        .then(() => setTimeout(viewEmployees, mainQuestion, 1000));
+        .then(() => setTimeout(viewEmployees, mainQuestion, 2000));
     });
 }
 
 function viewEmpByManager() {
   db.promise()
-    .query("SELECT * FROM managers")
-    .then(([managers]) => {
-      const managerList = managers.map((manager) => {
-        return {
-          name: manager.first_name + " " + manager.last_name,
-          value: manager.manager_id,
-        };
-      });
-
-      inquirer
-        .prompt({
-          type: "list",
-          message: "Select a manager to view managed employees",
-          name: "managers",
-          choices: managerList,
-        })
-        .then((answers) => {
-          db.promise()
-            .query(`SELECT ${answers.value} FROM employees`)
-            .then(([rows]) => {
-              console.table(rows);
-            });
-        });
+    .query(
+      "SELECT CONCAT(managers.first_name, ' ', managers.last_name) AS manager, managers.id FROM managers LEFT JOIN employees ON managers.id = employees.manager_id"
+    )
+    .then(([rows]) => {
+      console.table(rows);
     });
+
+  // .then(([managers]) => {
+  //   const managerList = managers.map((manager) => {
+  //     console.log(manager);
+  //     return {
+  //       name: manager.first_name + " " + manager.last_name,
+  //       value: manager.manager_id,
+  //     };
+  //   });
+
+  //   inquirer
+  //     .prompt({
+  //       type: "list",
+  //       message: "Select a manager to view managed employees",
+  //       name: "managers",
+  //       choices: managerList,
+  //     })
+  //     .then((answers) => {
+  //       console.log(answers);
+  //       db.promise()
+  //         .query(`SELECT ${answers.managers} FROM employees`)
+  //         .then(([rows]) => {
+  //           console.table(rows);
+  //         });
+  //     });
+  // });
 }
 
 function deleteDepartments() {

@@ -27,10 +27,10 @@ VALUES
     ('Sarah', 'Lourd', 7, NULL),
     ('Tom', 'Allen', 8, 7);
 
-INSERT INTO managers (first_name, last_name)
+INSERT INTO managers (first_name, last_name, id)
 VALUES 
-    ('John', 'Doe'),
-    ('Ashley', 'Rodriguez'),
-    ('Kunal', 'Singh'),
-    ('Sarah', 'Lourd');
+    ('John', 'Doe', 1),
+    ('Ashley', 'Rodriguez', 3),
+    ('Kunal', 'Singh', 5),
+    ('Sarah', 'Lourd', 7);
 

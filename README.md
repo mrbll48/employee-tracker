@@ -14,7 +14,9 @@
 
 ## Description
 
-This application is designed to allow you to easily manage a database of your employees. With this application you can easily check the current salaries of your employees, who manages them, which department they currently are working for, as well as add new employees to the database, new departments, and new job titles.
+This application is designed to allow you to easily manage a database of your employees. With this application you can easily check the current salaries of your employees, who manages them, which department they currently are working for, as well as add new employees to the database, new departments, and new job titles. View a demo of the application at the link below.
+
+https://drive.google.com/file/d/1nlXtpMZ0GkXYO_9clDUl4mZ_DnLvLEL5/view
 
 ## Installation
 
