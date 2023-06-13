@@ -106,7 +106,6 @@ function addRole() {
         ])
         .then((answers) => {
           console.log(answers.department_id);
-          db.promise().query("INSERT INTO roles SET ?", answers);
           db.promise()
             .query("INSERT INTO roles SET ?", answers)
             .then(() => setTimeout(viewRoles, mainQuestion, 2000));

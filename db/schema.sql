@@ -11,24 +11,20 @@ CREATE TABLE departments (
 CREATE TABLE roles (
     id INT NOT NULL AUTO_INCREMENT UNIQUE,
     title VARCHAR(30),
-    department VARCHAR(30),
     salary DECIMAL,
     department_id INT,
     FOREIGN KEY (department_id)
     REFERENCES departments(id)
-
 );
 
 CREATE TABLE employees (
     id INT NOT NULL AUTO_INCREMENT UNIQUE,
     first_name VARCHAR(30),
     last_name VARCHAR(30),
-    role_id VARCHAR(50),
-    manager_id INT
+    role_id INT,
+    FOREIGN KEY (role_id)
+    REFERENCES roles(id),
+    manager_id INT,
+    FOREIGN KEY (manager_id)
+    REFERENCES employees(id)
 );
-
-CREATE TABLE managers (
-    id INT NOT NULL AUTO_INCREMENT UNIQUE,
-    first_name VARCHAR(30),
-    last_name VARCHAR(30)
-)
